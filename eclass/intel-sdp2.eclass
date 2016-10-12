@@ -270,13 +270,13 @@ _isdp_run-test() {
 	fi
 }
 
-# @FUNCTION: intel-sdp_pkg_pretend
+# @FUNCTION: intel-sdp2_pkg_pretend
 # @DESCRIPTION:
 #
 # * Check that the user has a (valid) license file before going on.
 #
 # * Check for space requirements being fullfilled
-intel-sdp_pkg_pretend() {
+intel-sdp2_pkg_pretend() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	local warn=1 dir dirs ret arch a p
@@ -316,10 +316,10 @@ intel-sdp_pkg_pretend() {
 	fi
 }
 
-# @FUNCTION: intel-sdp_pkg_setup
+# @FUNCTION: intel-sdp2_pkg_setup
 # @DESCRIPTION:
 # Setting up and sorting some internal variables
-intel-sdp_pkg_setup() {
+intel-sdp2_pkg_setup() {
 	debug-print-function ${FUNCNAME} "${@}"
 	local arch a p
 
@@ -364,10 +364,10 @@ intel-sdp_pkg_setup() {
 	done
 }
 
-# @FUNCTION: intel-sdp_src_unpack
+# @FUNCTION: intel-sdp2_src_unpack
 # @DESCRIPTION:
 # Unpacking necessary rpms from tarball, extract them and rearrange the output.
-intel-sdp_src_unpack() {
+intel-sdp2_src_unpack() {
 	local l r subdir rb t list=() debug_list
 
 	for t in ${A}; do
@@ -400,10 +400,10 @@ intel-sdp_src_unpack() {
 	mv opt/intel/* ${INTEL_SDP_DIR} || die "mv to INTEL_SDP_DIR failed"
 }
 
-# @FUNCTION: intel-sdp_src_install
+# @FUNCTION: intel-sdp2_src_install
 # @DESCRIPTION:
 # Install everything
-intel-sdp_src_install() {
+intel-sdp2_src_install() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	if path_exists "${INTEL_SDP_DIR}"/uninstall*; then
@@ -454,10 +454,10 @@ intel-sdp_src_install() {
 	keepdir "${INTEL_SDP_DIR}"/licenses /opt/intel/ism/rm
 }
 
-# @FUNCTION: intel-sdp_pkg_postinst
+# @FUNCTION: intel-sdp2_pkg_postinst
 # @DESCRIPTION:
 # Add things to intel database
-intel-sdp_pkg_postinst() {
+intel-sdp2_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	# add product registry to intel "database"
@@ -475,10 +475,10 @@ intel-sdp_pkg_postinst() {
 	fi
 }
 
-# @FUNCTION: intel-sdp_pkg_postrm
+# @FUNCTION: intel-sdp2_pkg_postrm
 # @DESCRIPTION:
 # Sanitize intel database
-intel-sdp_pkg_postrm() {
+intel-sdp2_pkg_postrm() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	# remove from intel "database"
