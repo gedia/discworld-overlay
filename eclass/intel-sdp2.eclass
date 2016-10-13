@@ -116,7 +116,7 @@ esac
 # @ECLASS-VARIABLE: INTEL_SDP_DB
 # @DESCRIPTION:
 # Full path to intel registry db
-INTEL_SDP_DB="${EROOT%/}"/opt/intel/intel-sdp-products.db
+INTEL_SDP_DB="${EROOT%/}"/opt/intel/intel_sdp_products.db
 
 inherit check-reqs eutils multilib versionator
 
@@ -148,11 +148,16 @@ DEPEND="app-arch/rpm2targz"
 
 _INTEL_SDP_YEAR=${INTEL_DPV%_update*}
 _INTEL_SDP_YEAR=${INTEL_DPV%_sp*}
+_INTEL_SDP_YEAR=${INTEL_DPV%%.*}
 
 # @ECLASS-VARIABLE: INTEL_SDP_DIR
 # @DESCRIPTION:
 # Full rootless path to installation dir
-INTEL_SDP_DIR="opt/intel/${INTEL_SUBDIR}-${_INTEL_SDP_YEAR:-${_INTEL_PV1}}.${_INTEL_PV3}.${_INTEL_PV4}"
+if [ ${_INTEL_SDP_YEAR} = ${_INTEL_PV1} ]; then
+	INTEL_SDP_DIR="opt/intel/${INTEL_SUBDIR}_${_INTEL_SDP_YEAR}.${_INTEL_PV2}.${_INTEL_PV3}"
+else
+	INTEL_SDP_DIR="opt/intel/${INTEL_SUBDIR}-${_INTEL_SDP_YEAR:-${_INTEL_PV1}}.${_INTEL_PV3}.${_INTEL_PV4}"
+fi
 
 # @ECLASS-VARIABLE: INTEL_SDP_EDIR
 # @DESCRIPTION:
@@ -311,7 +316,7 @@ intel-sdp2_pkg_pretend() {
 			die "Could not find license file"
 		fi
 	else
-		eqawarn "The ebuild doesn't check for presents of a proper intel license!"
+		eqawarn "The ebuild doesn't check for presence of a proper intel license!"
 		eqawarn "This shouldn't be done unless there is a serious reason."
 	fi
 }
@@ -342,13 +347,17 @@ intel-sdp2_pkg_setup() {
 		read -r -d '' -a _INTEL_BIN_RPMS <<<"${INTEL_BIN_RPMS}"
 	fi
 	for p in "${_INTEL_BIN_RPMS[@]}"; do
-		for a in ${arch}; do
-			if [ ${p} == $(basename ${p}) ]; then
-				INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
-			else
-				INTEL_RPMS_FULL+=( ${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
-			fi
-		done
+		if [ -z "$(grep -F "x86_64" <<< ${p})" ] && [ -z "$(grep -F "i486" <<< ${p})" ]; then
+			for a in ${arch}; do
+				if [ ${p} == $(basename ${p}) ]; then
+					INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.${a}.rpm )
+				else
+					INTEL_RPMS_FULL+=( ${p}.${a}.rpm )
+				fi
+			done
+		else
+			INTEL_RPMS_FULL+=( ${p}.rpm )
+		fi
 	done
 	if [[ $(declare -p INTEL_DAT_RPMS) = "declare -a "* ]] ; then
 		_INTEL_DAT_RPMS=( ${INTEL_DAT_RPMS[@]} )
@@ -359,7 +368,7 @@ intel-sdp2_pkg_setup() {
 		if [ ${p} == $(basename ${p}) ]; then
 			INTEL_RPMS+=( intel-${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
 		else
-			INTEL_RPMS_FULL+=( ${p}-${_INTEL_PV4}-${_INTEL_PV1}.${_INTEL_PV2}-${_INTEL_PV3}.noarch.rpm )
+			INTEL_RPMS_FULL+=( ${p}.noarch.rpm )
 		fi
 	done
 }
@@ -372,12 +381,12 @@ intel-sdp2_src_unpack() {
 
 	for t in ${A}; do
 		for r in "${INTEL_RPMS[@]}"; do
-			rpmdir=${t%%.*}/${INTEL_RPMS_DIR}
+			rpmdir=${t%.*}/${INTEL_RPMS_DIR}
 			list+=( ${rpmdir}/${r} )
 		done
 
 		for r in "${INTEL_RPMS_FULL[@]}"; do
-			list+=( ${t%%.*}/${r} )
+			list+=( ${t%.*}/${r} )
 		done
 
 		debug_list="$(IFS=$'\n'; echo ${list[@]} )"
@@ -396,8 +405,9 @@ intel-sdp2_src_unpack() {
 			mv ${l} opt/intel/ || die "failed moving extract log file"
 		done
 	done
-
-	mv opt/intel/* ${INTEL_SDP_DIR} || die "mv to INTEL_SDP_DIR failed"
+	if ! [[ $(ls -d opt/intel/*) =~ "${INTEL_SDP_DIR}" ]]; then
+		mv opt/intel/* ${INTEL_SDP_DIR} || die "mv to INTEL_SDP_DIR failed"
+	fi
 }
 
 # @FUNCTION: intel-sdp2_src_install
@@ -462,10 +472,10 @@ intel-sdp2_pkg_postinst() {
 
 	# add product registry to intel "database"
 	local l r
-	for r in ${INTEL_RPMS}; do
+	for r in "${INTEL_RPMS[@]}"; do
 		l="$(ls -1 ${EROOT%/}/opt/intel/.${r}_*.log | head -n 1)"
 		echo >> ${INTEL_SDP_DB} \
-			"<:${r%-${_INTEL_PV4}*}-${_INTEL_PV4}:${r}:${INTEL_SDP_EDIR}:${l}:>"
+			"<:${r%-${_INTEL_PV4}}:${r}:/opt/intel:${l}:>"
 	done
 	_isdp_run-test
 
@@ -484,7 +494,7 @@ intel-sdp2_pkg_postrm() {
 	# remove from intel "database"
 	if [[ -e ${INTEL_SDP_DB} ]]; then
 		local r
-		for r in ${INTEL_RPMS}; do
+		for r in "${INTEL_RPMS[@]}"; do
 			sed -i \
 				-e "/${r}/d" \
 				${INTEL_SDP_DB}
