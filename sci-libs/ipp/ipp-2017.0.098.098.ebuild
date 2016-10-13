@@ -33,9 +33,10 @@ INTEL_DAT_RPMS=( ipp-{l,l-ps,sta-ss}-common rpm/intel-{comp-l-all-vars-098-17.0.
 INTEL_SKIP_LICENSE=true
 
 src_install() {
-        ls -l "${S}"/"${INTEL_SDP_DIR}"/linux/ipp/tools/custom_library_tool/ipp_custom_library_tool
         chrpath -d "${S}"/"${INTEL_SDP_DIR}"/linux/ipp/tools/custom_library_tool/ipp_custom_library_tool{,_gui_gtk{2,3}/{ipp_custom_library_tool_gui,libwx_baseu-3.1.so.0},_gui_gtk2/{libwx_gtk2u_core-3.1.so.0,libwx_gtk2u_webview-3.1.so.0},_gui_gtk3/{libwx_gtk3u_core-3.1.so.0,libwx_gtk3u_webview-3.1.so.0}}
+
 	intel-sdp2_src_install
+
 	dodir "/opt/intel/compilers_and_libraries_2017"
 	dosym "compilers_and_libraries_2017" "/opt/intel/compilers_and_libraries"
 	dosym "compilers_and_libraries/linux/ipp" "/opt/intel/ipp"
@@ -45,5 +46,16 @@ src_install() {
 	dosym "../../compilers_and_libraries_2017.0.098/linux/compiler/lib" "/opt/intel/compilers_and_libraries/linux/lib"
 	dosym "../../compilers_and_libraries_2017.0.098/linux/bin" "/opt/intel/compilers_and_libraries/linux/pkg_bin"
 	dosym "../../samples_2017" "/opt/intel/compilers_and_libraries/linux/samples"
-}
 
+	local arch IPP_LDPATH
+
+	for arch in ${INTEL_ARCH}; do
+		IPP_LDPATH+="/opt/intel/ipp/lib/${arch}:/opt/intel/ipp/legacy/lib/${arch}:/opt/intel/ipp/legacy/lib/${arch}/threaded:/opt/intel/compilers_and_libraries_2017.0.098/linux/compiler/lib/${arch}_lin:"
+	done
+	IPP_LDPATH=${IPP_LDPATH::-1}
+	echo "$IPP_LDPATH"
+
+	newenvd - 98intel-ipp <<EOF
+LDPATH="${IPP_LDPATH}"
+EOF
+}
