@@ -1,0 +1,67 @@
+diff -Naur pjproject-2.5.5/aconfigure.ac pjproject-2.5.5-aft/aconfigure.ac
+--- pjproject-2.5.5/aconfigure.ac	2016-07-20 10:03:49.000000000 +0300
++++ pjproject-2.5.5-aft/aconfigure.ac	2016-10-11 14:27:09.385845874 +0300
+@@ -1382,14 +1382,26 @@
+ 	SAVED_LDFLAGS="$LDFLAGS"
+ 	SAVED_LIBS="$LIBS"
+ 
+-	IPP_CFLAGS="-I$IPPROOT/include"
+-	IPP_LIBS="-lippsc${IPP_SUFFIX} -lipps${IPP_SUFFIX} -lippcore${IPP_SUFFIX}"
++	IPP_CFLAGS="-I\"$IPPROOT/include\"";
++        # need IPP Legacy to build speech codecs
++        AC_MSG_CHECKING([for legacy IPP 9.0 libraries])
++        ipp_legacy_h="$IPPROOT"/legacy/include/ipps90legacy.h
++        if test ! -f "$ipp_legacy_h"; then
++            AC_MSG_ERROR([IPP $ipp_legacy_h not found])
++        fi
++        ipp_legacy_libsvml="$IPPROOT"/legacy/lib/$IPP_SUFFIX/libsvml.so
++        if test ! -f "$ipp_legacy_libsvml"; then
++            AC_MSG_ERROR([IPP $ipp_legacy_libsvml not found])
++        fi
++        AC_MSG_RESULT([$ipp_legacy_h $ipp_legacy_libsvml])
++        IPP_CFLAGS="$IPP_CFLAGS -I\"$IPPROOT/legacy/include\" -Wno-deprecated-declarations";
++	IPP_LIBS="-lippsc90lgc -lipps90lgc -lipps -lippvm -lippcore -lirc -lsvml"
+ 
+ #
+ 	# Some differences between Mac OS X and Linux
+ 	case $target in 
+ 	    *darwin* )
+-		IPP_LDFLAGS="-L$IPPROOT/Libraries -L$IPPROOT/lib"
++		IPP_LDFLAGS="-L$IPPROOT/Libraries -L\"${IPPROOT}/lib/${v}\" -L\"${IPPROOT}/legacy/lib/${IPP_SUFFIX}\" -L\"${IPPROOT}/legacy/lib/${IPP_SUFFIX}/threaded\" -L\"${IPPROOT}/../compilers_and_libraries_2017.0.098/linux/compiler/lib/${IPP_SUFFIX}_lin\""
+ 		;;
+ 	    *)
+ 	    	# Find out where the libraries live.
+@@ -1405,14 +1417,14 @@
+ 		if test -z "$IPP7_ARCH"; then
+ 		   # IPP6 (and possibly below)
+ 		   IPP_LDFLAGS="-L$IPPROOT/sharedlib"
+-		   IPP_LIBS="$IPP_LIBS  -lippsr${IPP_SUFFIX} -lguide"
++		   IPP_LIBS="$IPP_LIBS  -lippsr -lguide"
+ 		else
+ 		   # IPP7
+-		   if ! test -d $IPPROOT/../compiler; then
++		   if ! test -d $IPPROOT/lib; then
+ 			AC_MSG_ERROR([Cannot find $IPPROOT/../compiler directory. Please set IPPROOT variable correctly])
+ 		   fi
+ 		   IPP_CFLAGS="$IPP_CFLAGS"
+-		   IPP_LDFLAGS="-L$IPPROOT/lib/intel64 -L$IPPROOT/../compiler/lib/$IPP7_ARCH"
++		   IPP_LDFLAGS="-L\"${IPPROOT}/lib/${v}\" -L\"${IPPROOT}/legacy/lib/${IPP_SUFFIX}\" -L\"${IPPROOT}/legacy/lib/${IPP_SUFFIX}/threaded\" -L\"${IPPROOT}/../compilers_and_libraries_2017.0.098/linux/compiler/lib/${IPP_SUFFIX}_lin\""
+ 		   IPP_LIBS="$IPP_LIBS -liomp5"
+ 		fi
+ 		;;
+@@ -1428,11 +1440,10 @@
+ 
+ 
+ 	AC_MSG_CHECKING([Intel IPP usability])
+-	AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ippcore.h>
+-					   ]],
+-					   [ippStaticInit();])],
+-		  [AC_MSG_RESULT(ok)],
+-		  [AC_MSG_FAILURE([Error: unable to recognize your IPP installation. Make sure the paths and ARCH suffix are set correctly, run with --help for more info])])
++	AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ippcore.h>]],
++					[[ippInit();]])],
++			[AC_MSG_RESULT(ok)],
++			[AC_MSG_FAILURE([Error: unable to recognize your IPP installation. Make sure the paths and ARCH suffix are set correctly, run with --help for more info])])
+ 
+ 	CFLAGS="$SAVED_CFLAGS"
+ 	LDFLAGS="$SAVED_LDFLAGS"
