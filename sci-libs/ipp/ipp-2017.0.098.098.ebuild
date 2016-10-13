@@ -50,7 +50,7 @@ src_install() {
 	local arch IPP_LDPATH
 
 	for arch in ${INTEL_ARCH}; do
-		IPP_LDPATH+="/opt/intel/ipp/lib/${arch}:/opt/intel/ipp/legacy/lib/${arch}:/opt/intel/ipp/legacy/lib/${arch}/threaded:/opt/intel/compilers_and_libraries_2017.0.098/linux/compiler/lib/${arch}_lin:"
+		IPP_LDPATH+="/opt/intel/ipp/lib/${arch}:/opt/intel/compilers_and_libraries_2017.0.098/linux/compiler/lib/${arch}_lin:"
 	done
 	IPP_LDPATH=${IPP_LDPATH::-1}
 	echo "$IPP_LDPATH"
