@@ -30,4 +30,7 @@ src_prepare() {
 src_install() {
 	mkdir -p "${D}/opt/intel/ipp/legacy"
 	mv "${S}/linux/"* "${D}/opt/intel/ipp/legacy/"
+        newenvd - 98intel-ipp-legacy <<EOF
+LDPATH="/opt/intel/ipp/legacy/lib/intel64:/opt/intel/ipp/legacy/lib/intel64/threaded:/opt/intel/ipp/legacy/lib/ia32:/opt/intel/ipp/legacy/lib/ia32/threaded"
+EOF
 }
