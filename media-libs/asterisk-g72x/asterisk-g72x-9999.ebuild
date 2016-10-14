@@ -10,7 +10,7 @@ DESCRIPTION="G.729 and G.723.1 codecs for Asterisk open source PBX"
 HOMEPAGE="http://asterisk.hosting.lv/"
 SRC_URI=""
 
-LICENSE="GPL-3"
+LICENSE="&& ( GPL-3 INTEL-SDP )"
 SLOT="0"
 KEYWORDS=""
 IUSE="+ipp nofloat"
