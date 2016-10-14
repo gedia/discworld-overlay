@@ -1,0 +1,12 @@
+diff -Naur rtpengine-mr4.5.1.1/kernel-module/Makefile rtpengine-mr4.5.1.1-aft/kernel-module/Makefile
+--- rtpengine-mr4.5.1.1/kernel-module/Makefile	2016-10-03 08:44:02.008783799 +0300
++++ rtpengine-mr4.5.1.1-aft/kernel-module/Makefile	2016-10-03 08:44:54.700723881 +0300
+@@ -5,7 +5,7 @@
+ RTPENGINE_VERSION+=${PV}
+ 
+ EXTRA_CFLAGS +=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+-
++EXTRA_CFLAGS += -Wno-implicit-function-declaration
+ EXTRA_CFLAGS += -D__RE_EXTERNAL
+ 
+ obj-m        += xt_RTPENGINE.o

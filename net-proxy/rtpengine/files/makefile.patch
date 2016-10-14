@@ -1,0 +1,12 @@
+diff -Naur rtpengine-mr4.5.1.1/daemon/Makefile rtpengine-mr4.5.1.1-aft/daemon/Makefile
+--- rtpengine-mr4.5.1.1/daemon/Makefile	2016-08-22 14:01:22.000000000 +0300
++++ rtpengine-mr4.5.1.1-aft/daemon/Makefile	2016-10-03 04:56:20.438681011 +0300
+@@ -28,7 +28,7 @@
+     RTPENGINE_VERSION+=undefined
+   endif
+ endif
+-CFLAGS+=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
++CFLAGS+=	-DRTPENGINE_VERSION="\"${PV}\""
+ 
+ CFLAGS+=	-DRE_PLUGIN_DIR="\"/usr/lib/rtpengine\""
+ 

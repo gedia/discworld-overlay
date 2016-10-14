@@ -1,0 +1,62 @@
+diff -Naur rtpengine-mr4.5.1.1/iptables-extension/Makefile rtpengine-mr4.5.1.1-aft/iptables-extension/Makefile
+--- rtpengine-mr4.5.1.1/iptables-extension/Makefile	2016-08-22 14:01:22.000000000 +0300
++++ rtpengine-mr4.5.1.1-aft/iptables-extension/Makefile	2016-10-03 08:37:55.565251807 +0300
+@@ -1,15 +1,6 @@
+ CC?=gcc
+ CFLAGS		= -O2 -Wall -shared -fPIC
+-ifneq ($(RTPENGINE_VERSION),)
+-  CFLAGS	+= -DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+-else
+-  DPKG_PRSCHNGLG= $(shell which dpkg-parsechangelog 2>/dev/null)
+-  ifneq ($(DPKG_PRSCHNGLG),)
+-    CFLAGS	+= -DRTPENGINE_VERSION="\"$(shell dpkg-parsechangelog -l../debian/changelog | awk '/^Version: / {print $$2}')\""
+-  else
+-    CFLAGS	+= -DRTPENGINE_VERSION="\"undefined\""
+-  endif
+-endif
++CFLAGS		+= -DRTPENGINE_VERSION="\"${PV}\""
+ 
+ XTABLES		= $(shell test -e /usr/include/xtables.h && echo 1)
+ IPTABLES	= $(shell test -e /usr/include/iptables.h && echo 1)
+diff -Naur rtpengine-mr4.5.1.1/kernel-module/Makefile rtpengine-mr4.5.1.1-aft/kernel-module/Makefile
+--- rtpengine-mr4.5.1.1/kernel-module/Makefile	2016-08-22 14:01:22.000000000 +0300
++++ rtpengine-mr4.5.1.1-aft/kernel-module/Makefile	2016-10-03 08:41:52.420936622 +0300
+@@ -2,26 +2,9 @@
+ KSRC   ?= /lib/modules/$(shell uname -r)/build
+ KBUILD := $(KSRC)
+ 
+-ifeq ($(RTPENGINE_VERSION),)
+-  DPKG_PRSCHNGLG= $(shell which dpkg-parsechangelog 2>/dev/null)
+-  DEB_CHANGELOG=$(shell test -f $(M)/../debian/changelog && echo $(M)/../debian/changelog || echo $(M)/debian/changelog)
+-  ifneq ($(DPKG_PRSCHNGLG),)
+-    DPKG_PRSCHNGLG=$(shell dpkg-parsechangelog -l$(DEB_CHANGELOG) | awk '/^Version: / {print $$2}')
+-  endif
+-  GIT_BR_COMMIT=$(shell git branch --no-color --no-column -v 2> /dev/null | awk '/^\*/ {OFS="-"; print "git", $$2, $$3}')
+-
+-  ifneq ($(DPKG_PRSCHNGLG),)
+-    RTPENGINE_VERSION+=$(DPKG_PRSCHNGLG)
+-  endif
+-  ifneq ($(GIT_BR_COMMIT),)
+-    RTPENGINE_VERSION+=$(GIT_BR_COMMIT)
+-  endif
+-
+-  ifeq ($(RTPENGINE_VERSION),)
+-    RTPENGINE_VERSION+=undefined
+-  endif
+-endif
+-EXTRA_CFLAGS+=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
++RTPENGINE_VERSION+=${PV}
++
++EXTRA_CFLAGS +=	-DRTPENGINE_VERSION="\"$(RTPENGINE_VERSION)\""
+ 
+ EXTRA_CFLAGS += -D__RE_EXTERNAL
+ 
+@@ -30,7 +13,7 @@
+ .PHONY:		modules clean patch
+ 
+ modules:
+-		make -C $(KBUILD) M=$(PWD) O=$(KBUILD) modules
++		make -C $(KBUILD) M=$(PWD) modules
+ 
+ clean:
+ 		make -C $(KBUILD) M=$(PWD) clean
