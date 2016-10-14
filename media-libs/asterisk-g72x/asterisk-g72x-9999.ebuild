@@ -63,9 +63,9 @@ src_configure() {
 
 }
 
-src_postinst() {
+pkg_postinst() {
 	ewarn "Depending on use cases and patent law in your jurisdiction,"
-	      "you might have to pay royalty fees to the G.729/723.1 patent"
-	      "holders for using their algorithm. The creator of this ebuild"
-	      "bears no responsibility resulting from use of this work."
+	ewarn "you might have to pay royalty fees to the G.729/723.1 patent"
+	ewarn "holders for using their algorithm. The creator of this ebuild"
+	ewarn "bears no responsibility resulting from use of this work."
 }
