@@ -262,30 +262,19 @@ pkg_setup() {
         use kamailio_modules_app_python && python-single-r1_pkg_setup
 }
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
-
-	use ipv6 || \
-		sed -i -e "s/-DUSE_IPV6//g" Makefile.defs
-
+src_configure() {
+        cd "${S}"
         for i in ${IUSE_KAMAILIO_MODULES};
 	do
 	if use $i; then
-			EXCMODULES="${EXCMODULES/$(echo $i | sed -e 's/kamailio_modules_//g')/}"
-			KAMODULES="${KAMODULES} $(echo $i | sed -e 's/kamailio_modules_//g')"
+		KAMODULES="${KAMODULES} $(echo $i | sed -e 's/kamailio_modules_//g')"
+	else
+		EXCMODULES="${EXCMODULES} $(echo $i | sed -e 's/kamailio_modules_//g')"
 	fi
 	done
-}
 
-src_configure() {
-        if use kamailio_modules_app_python; then
-                python_export PYTHON_LIBPATH
-                mymakeargs+=(
-                        -DPYTHON_EXECUTABLE="${PYTHON}"
-                        -DPYTHON_LIBRARY="${PYTHON_LIBPATH}"
-                )
-        fi
+	KAMODULES=${KAMODULES:1}
+	EXCMODULES=${EXCMODULES:1}
 
 	if use kamailio_modules_tls; then
 		tls_hooks=1
@@ -308,6 +297,7 @@ src_configure() {
 	emake \
 		prefix="/" \
 		include_modules="${KAMODULES}" \
+		exclude_modules="${EXCMODULES}" \
 		SCTP="${sctp}" \
 		mode="${mode}" \
 		TLS_HOOKS="${tls_hooks}" \
