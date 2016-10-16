@@ -41,8 +41,15 @@ src_install() {
 
         insinto /usr/$(get_libdir)/asterisk/modules/
         doins "codec_${CODEC}.so"
+	doins "format_ogg_${CODEC}.so"
 
 	fperms 0755 "/usr/$(get_libdir)/asterisk/modules/codec_${CODEC}.so"
+
+        insinto /var/lib/asterisk/documentation
+	doins "codec_${CODEC}_config-en_US.xml"
+
+        insinto /var/lib/asterisk/static-http
+	doins "codec_${CODEC}_config-en_US.xml"
 }
 
 pkg_postinst() {
