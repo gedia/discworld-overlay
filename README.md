@@ -10,6 +10,29 @@ In addition, download and/or use of ebuilds provided by this repository might re
 These disclaimers apply in addition to the terms of the licence under which this work is published. Please see
 the LICENSE file for more information.
 
+### Installation
+ - This repository is now on layman. To install it, run as root:
+```bash
+layman -f && layman -a discworld
+```
+ - Alternatively:
+   - Clone the repository:
+   ```bash
+   cd /usr/local/portage
+   git clone https://github.com/gedia/discworld-overlay.git
+   ```
+   - and add the following to your portage repository configuration (e.g., /etc/portage/repos.conf/local.conf),
+     adjusting as necessary:
+   ~~~~
+   [discworld]
+   priority = 99
+   sync-type = git
+   sync-uri = https://github.com/gedia/discworld-overlay.git
+   location = /usr/local/portage/discworld-overlay
+   masters = gentoo
+   auto-sync = Yes
+   ~~~~
+
 ### Noteworthy ebuilds
 This is a possibly incomplete list of ebuilds included in this Gentoo repository:
  - net-misc/kamailio: A well-known SIP-proxy. You might want to check rion-overlay for alternatives.
