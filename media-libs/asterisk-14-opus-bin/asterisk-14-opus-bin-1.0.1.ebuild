@@ -44,6 +44,7 @@ src_install() {
 	doins "format_ogg_${CODEC}.so"
 
 	fperms 0755 "/usr/$(get_libdir)/asterisk/modules/codec_${CODEC}.so"
+	fperms 0755 "/usr/$(get_libdir)/asterisk/modules/format_ogg_${CODEC}.so"
 
         insinto /var/lib/asterisk/documentation
 	doins "codec_${CODEC}_config-en_US.xml"
