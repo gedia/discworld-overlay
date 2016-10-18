@@ -1,0 +1,165 @@
+From bb968d7cd791cff0d925c63c6eb3ea05cca2e831 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Wed, 28 Sep 2016 22:52:51 +0200
+Subject: [PATCH 1/5] make: Enable the silent rules to see compiler warnings
+ more clearly
+
+---
+ configure.ac | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configure.ac b/configure.ac
+index 8035388..b9fa2a4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3,6 +3,7 @@ AC_INIT(captagent,6.2.0.2,support@sipcapture.org,,[http://www.sipcapture.org])
+ AC_COPYRIGHT("SIP Capture Solution")
+ AC_CONFIG_MACRO_DIR([m4])
+ AM_INIT_AUTOMAKE(foreign tar-ustar)
++m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ AC_CONFIG_HEADERS([src/config.h])
+ AC_CONFIG_SRCDIR([src/captagent.c])
+ AC_MSG_CHECKING([whether to use compression])
+
+From 7eaa07c58a6cab67610ad5afbd0dcff16e698542 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Wed, 28 Sep 2016 22:35:27 +0200
+Subject: [PATCH 2/5] Use C99 stdbool.h instead of a custom typedef
+
+On Darwin and other platforms a plain signed int and then creating
+a conflict:
+
+../include/captagent/api.h:120:22: error: cannot combine with previous 'int' declaration specifier
+typedef unsigned int bool;
+---
+ include/captagent/api.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/include/captagent/api.h b/include/captagent/api.h
+index b6560fe..48d3b0d 100644
+--- a/include/captagent/api.h
++++ b/include/captagent/api.h
+@@ -39,6 +39,7 @@
+ #include <netdb.h>
+ #include <fcntl.h>
+ #include <unistd.h>
++#include <stdbool.h>
+ 
+ #include "config.h"
+ 
+@@ -117,8 +118,6 @@ struct hep_module *hepmod;
+ extern int get_basestat(char *module, char *stats, size_t len);
+ struct module *module_list;
+ 
+-typedef unsigned int bool;
+-
+ #ifndef TRUE
+ #define TRUE  1
+ #endif /* TRUE */
+
+From 7e2080f035b81a263f4ed166051d5ecbec9336d4 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Wed, 28 Sep 2016 22:49:15 +0200
+Subject: [PATCH 3/5] Address compiler warning in push
+
+The semicolon is intended but newer compilers will warn about it.
+Follow the compiler warnings advice and add a small comment.
+
+conf_function.c:283:41: warning: for loop has empty body [-Wempty-body]
+        for (t=*head; t->next;t=t->next);
+                                        ^
+conf_function.c:283:41: note: put the semicolon on a separate line to silence this warning
+---
+ src/conf_function.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/conf_function.c b/src/conf_function.c
+index e7bf398..23e0635 100644
+--- a/src/conf_function.c
++++ b/src/conf_function.c
+@@ -280,8 +280,11 @@ void push(struct action* a, struct action** head)
+                 *head=a;
+                 return;
+         }
+-        for (t=*head; t->next;t=t->next);
+-                t->next=a;
++
++        /* go to the end of the list, then append */
++        for (t=*head; t->next;t=t->next)
++                ;
++        t->next=a;
+ }
+ 
+ /* searches the module list and returns a pointer to the "name" function or
+
+From 11d67c4cb8296801c23c6c4f0e3e131f06c39a03 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Wed, 28 Sep 2016 22:57:03 +0200
+Subject: [PATCH 4/5] conf_function: Forward declare the struct run_act_ctx
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Silences:
+conf_function.h:57:52: warning: ‘struct run_act_ctx’ declared inside parameter list
+ static int eval_elem(struct run_act_ctx* h, struct expr* e, msg_t* msg);
+---
+ src/conf_function.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/conf_function.h b/src/conf_function.h
+index 8143b51..3ee82ba 100644
+--- a/src/conf_function.h
++++ b/src/conf_function.h
+@@ -38,6 +38,8 @@ enum { METHOD_O=1, DEFAULT_O, ACTION_O, NUMBER_O};
+ enum { FORWARD_T=1, SEND_T, DROP_T, IF_T, MODULE_T};
+ enum { NOSUBTYPE=0, STRING_ST, NET_ST, ACTIONS_ST, CMDF_ST, EXPR_ST, NUMBER_ST };
+ 
++struct run_act_ctx;
++
+ 
+ struct expr{
+         int type; /* exp, exp_elem */
+
+From 2bda96669d6054c4833aa858a7a939c08221d592 Mon Sep 17 00:00:00 2001
+From: Holger Hans Peter Freyther <holger@moiji-mobile.com>
+Date: Wed, 28 Sep 2016 22:58:46 +0200
+Subject: [PATCH 5/5] interface_http: Print size_t using the %z modifier
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes:
+interface_http.c: In function ‘send_reply’:
+interface_http.c:176:4: warning: format ‘%lu’ expects argument of type ‘long unsigned int’, but argument 5 has type ‘size_t’ [-Wformat=]
+    "%s", code, "text/plain", strlen(message), uuid ? uuid : "0", message);
+    ^
+interface_http.c: In function ‘send_json_reply’:
+interface_http.c:192:4: warning: format ‘%lu’ expects argument of type ‘long unsigned int’, but argument 5 has type ‘size_t’ [-Wformat=]
+    "%s\r\n", code, "application/json", strlen(message)+2, uuid ? uuid : "0", type == 1 ? "push" : "reply", message);
+---
+ src/modules/interface/http/interface_http.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/interface/http/interface_http.c b/src/modules/interface/http/interface_http.c
+index bce1684..1995457 100644
+--- a/src/modules/interface/http/interface_http.c
++++ b/src/modules/interface/http/interface_http.c
+@@ -170,7 +170,7 @@ void send_reply(struct mg_connection *conn, char *code, char *message, const cha
+ 
+ 	mg_printf(conn, "HTTP/1.1 %s\r\n"
+ 			"Content-Type: %s\r\n"
+-			"Content-Length: %lu\r\n"
++			"Content-Length: %zu\r\n"
+ 			"X-Response-UUID: %s\r\n"
+ 			"\r\n"
+ 			"%s", code, "text/plain", strlen(message), uuid ? uuid : "0", message);
+@@ -185,7 +185,7 @@ void send_json_reply(struct mg_connection *conn, char *code, json_object *jobj,
+ 
+ 	mg_printf(conn, "HTTP/1.1 %s\r\n"
+ 			"Content-Type: %s\r\n"
+-			"Content-Length: %lu\r\n"
++			"Content-Length: %zu\r\n"
+ 			"X-Response-UUID: %s\r\n"
+ 			"X-Type-Event: %s\r\n"
+ 			"\r\n"

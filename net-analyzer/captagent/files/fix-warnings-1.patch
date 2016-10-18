@@ -1,0 +1,496 @@
+From c1cf99f33a466295c4c0e9e33c1c0d8297a6eccd Mon Sep 17 00:00:00 2001
+From: Alexandr Dubovikov <alexandr.dubovikov@gmail.com>
+Date: Mon, 26 Sep 2016 12:41:58 +0200
+Subject: [PATCH] fixed some warnings
+
+---
+ src/md5.c                                   |  1 +
+ src/modules/database/hash/database_hash.c   |  3 +--
+ src/modules/database/hash/database_hash.h   |  2 +-
+ src/modules/database/hash/localapi.c        |  5 ++--
+ src/modules/database/redis/database_redis.c |  2 +-
+ src/modules/protocol/rtcp/parser_rtcp.c     |  2 +-
+ src/modules/socket/pcap/localapi.h          |  4 ++++
+ src/modules/socket/pcap/socket_pcap.c       | 22 +++++++++---------
+ src/modules/socket/pcap/tcpreasm.c          |  6 +++--
+ src/modules/socket/raw/socket_raw.c         | 36 ++++++++++++-----------------
+ src/modules/socket/rtcpxr/socket_rtcpxr.c   |  7 +++---
+ src/modules/transport/hep/localapi.c        |  2 +-
+ src/modules/transport/hep/localapi.h        |  7 ++++--
+ src/modules/transport/hep/transport_hep.c   |  4 +---
+ src/modules/transport/json/transport_json.c |  9 ++++----
+ 15 files changed, 58 insertions(+), 54 deletions(-)
+
+diff --git a/src/md5.c b/src/md5.c
+index 774366e..400012c 100644
+--- a/src/md5.c
++++ b/src/md5.c
+@@ -125,6 +125,7 @@
+ #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
+ 
+ #include "md5.h"
++#include <string.h>
+ 
+ static void
+ md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
+diff --git a/src/modules/database/hash/database_hash.c b/src/modules/database/hash/database_hash.c
+index c0aaf2c..22409e1 100644
+--- a/src/modules/database/hash/database_hash.c
++++ b/src/modules/database/hash/database_hash.c
+@@ -222,7 +222,6 @@ int find_and_update(char *key, char *callid)
+ struct ipport_items *find_ipport_key(char *key) {
+ 
+     struct ipport_items *ipport = NULL;
+-    int ret = 0;
+ 
+     if (pthread_rwlock_rdlock(&ipport_lock) != 0) {
+              LERR("can't acquire write lock");
+@@ -360,7 +359,7 @@ void print_ipports() {
+ int reload_config (char *erbuf, int erlen) {
+ 
+ 	char module_config_name[500];
+-	xml_node *config;
++	xml_node *config = NULL;
+ 
+ 	LNOTICE("reloading config for [%s]", module_name);
+ 
+diff --git a/src/modules/database/hash/database_hash.h b/src/modules/database/hash/database_hash.h
+index faf95c0..8c4be1b 100644
+--- a/src/modules/database/hash/database_hash.h
++++ b/src/modules/database/hash/database_hash.h
+@@ -34,7 +34,7 @@
+ int timer_timeout = 10;
+ int timer_loop_stop = 0;
+ 
+-static int global_session_id = 0;
++//static int global_session_id = 0;
+ 
+ int cin_min = 100;
+ int cin_max = 800;
+diff --git a/src/modules/database/hash/localapi.c b/src/modules/database/hash/localapi.c
+index 92ced78..16007be 100644
+--- a/src/modules/database/hash/localapi.c
++++ b/src/modules/database/hash/localapi.c
+@@ -33,8 +33,9 @@
+ 
+ char* hashapi_lookup(char *ip, int port)
+ {
+-	LERR("LOOKUP IP: [%s], PORT: [%d]", ip, port);
+-    return find_ipport(ip, port);
++    //LERR("LOOKUP IP: [%s], PORT: [%d]", ip, port);
++    //return find_ipport(ip, port);
++    return NULL;
+ }
+ 
+ int bind_database_hash(database_hash_api_t* api)
+diff --git a/src/modules/database/redis/database_redis.c b/src/modules/database/redis/database_redis.c
+index 77fbb71..a879c16 100644
+--- a/src/modules/database/redis/database_redis.c
++++ b/src/modules/database/redis/database_redis.c
+@@ -118,7 +118,7 @@ int bind_redis_api(database_module_api_t* api)
+ int reload_config (char *erbuf, int erlen) {
+ 
+ 	char module_config_name[500];
+-	xml_node *config;
++	xml_node *config = NULL;
+ 
+ 	LNOTICE("reloading config for [%s]", module_name);
+ 
+diff --git a/src/modules/protocol/rtcp/parser_rtcp.c b/src/modules/protocol/rtcp/parser_rtcp.c
+index 86e6148..56d4c33 100644
+--- a/src/modules/protocol/rtcp/parser_rtcp.c
++++ b/src/modules/protocol/rtcp/parser_rtcp.c
+@@ -125,7 +125,7 @@ int capt_parse_rtcp(char *packet, int len, char *json_buffer, int buffer_len) {
+ 
+ 				rtcp_sdes_t *sdes = (rtcp_sdes_t*)rtcp;
+ 
+-				rptr = rtcp+2;
++				rptr = (char *)rtcp+2;
+ 				int sdes_report_count = 0;
+ 
+ 				char *end=(char*) rptr+(4*(rtcp_header_get_length(&sdes->header)+1)-15);
+diff --git a/src/modules/socket/pcap/localapi.h b/src/modules/socket/pcap/localapi.h
+index 07f3da0..a971644 100644
+--- a/src/modules/socket/pcap/localapi.h
++++ b/src/modules/socket/pcap/localapi.h
+@@ -29,6 +29,10 @@
+ #include <captagent/log.h>
+ #include <captagent/export_function.h>
+ 
++extern int set_raw_filter(unsigned int loc_idx, char *filter);
++extern pcap_t* get_pcap_handler(unsigned int loc_idx);
++
++
+ typedef int (*rawapi_set_filter_f)(unsigned int index, char *filter);
+ int rawapi_set_filter(unsigned int index, char *filter);
+ 
+diff --git a/src/modules/socket/pcap/socket_pcap.c b/src/modules/socket/pcap/socket_pcap.c
+index 30bd521..231f511 100644
+--- a/src/modules/socket/pcap/socket_pcap.c
++++ b/src/modules/socket/pcap/socket_pcap.c
+@@ -182,7 +182,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+         struct ip6_hdr *ip6_pkt = (struct ip6_hdr*)(packet + link_offset + hdr_offset + ((ntohs((uint16_t)*(packet + 12)) == 0x8100)? 4: 0) );
+ #endif
+ 
+-	uint8_t loc_index = (uint8_t *) useless;
++	uint8_t loc_index = (uint8_t) *useless;
+ 	msg_t _msg;
+ 	uint32_t ip_ver;
+ 	uint8_t ip_proto = 0;
+@@ -190,7 +190,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+ 	uint32_t ip_off = 0;
+ 	uint8_t fragmented = 0;
+ 	uint16_t frag_offset = 0;
+-	uint32_t frag_id = 0;
++	//uint32_t frag_id = 0;
+ 	char ip_src[INET6_ADDRSTRLEN + 1], ip_dst[INET6_ADDRSTRLEN + 1];
+ 	char mac_src[20], mac_dst[20];
+ 	u_char *pack = NULL;
+@@ -248,7 +248,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+ 
+ 		fragmented = ip_off & (IP_MF | IP_OFFMASK);
+ 		frag_offset = (fragmented) ? (ip_off & IP_OFFMASK) * 8 : 0;
+-		frag_id = ntohs(ip4_pkt->ip_id);
++		//frag_id = ntohs(ip4_pkt->ip_id);
+ 
+ 		inet_ntop(AF_INET, (const void *) &ip4_pkt->ip_src, ip_src, sizeof(ip_src));
+ 		inet_ntop(AF_INET, (const void *) &ip4_pkt->ip_dst, ip_dst, sizeof(ip_dst));
+@@ -269,7 +269,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+ 
+ 				fragmented = 1;
+ 				frag_offset = ntohs(ip6_fraghdr->ip6f_offlg & IP6F_OFF_MASK);
+-				frag_id = ntohl(ip6_fraghdr->ip6f_ident);
++				//frag_id = ntohl(ip6_fraghdr->ip6f_ident);
+ 			}
+ 
+ 			inet_ntop(AF_INET6, (const void *)&ip6_pkt->ip6_src, ip_src, sizeof(ip_src));
+@@ -285,7 +285,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+ 		//uint16_t tcphdr_offset = (frag_offset) ? 0 : (tcp_pkt->th_off * 4);
+ 		uint16_t tcphdr_offset = frag_offset ? 0 : (uint16_t) (tcp_pkt->th_off * 4);
+ 
+-		data = (char *) (tcp_pkt) + tcphdr_offset;
++		data = (unsigned char *) tcp_pkt + tcphdr_offset;
+ 		
+ 		_msg.hdr_len = link_offset + hdr_offset + ip_hl + tcphdr_offset;
+ 		
+@@ -395,7 +395,7 @@ void callback_proto(u_char *useless, struct pcap_pkthdr *pkthdr, u_char *packet)
+ 		struct udphdr *udp_pkt = (struct udphdr *) ((unsigned char *) (ip4_pkt) + ip_hl);
+ 		uint16_t udphdr_offset = (frag_offset) ? 0 : sizeof(*udp_pkt);
+ 
+-		data = (char *) (udp_pkt) + udphdr_offset;
++		data = (unsigned char *) (udp_pkt) + udphdr_offset;
+ 		
+ 		_msg.hdr_len = link_offset + ip_hl + hdr_offset + udphdr_offset;
+ 		
+@@ -609,7 +609,7 @@ int set_raw_filter(unsigned int loc_idx, char *filter) {
+ 
+ void* proto_collect(void *arg) {
+ 
+-	unsigned int loc_idx = (int *) arg;
++	unsigned int loc_idx = *((int *)arg);
+ 	int ret = 0, dl = 0;
+ 
+ 	dl = pcap_datalink(sniffer_proto[loc_idx]);
+@@ -660,7 +660,7 @@ void* proto_collect(void *arg) {
+ 	LDEBUG("Link offset interface type [%u] [%d] [%d]", dl, dl, link_offset);
+ 
+ 	while(1) {
+-		ret = pcap_loop(sniffer_proto[loc_idx], 0, (pcap_handler) callback_proto, (u_char*) loc_idx);
++		ret = pcap_loop(sniffer_proto[loc_idx], 0, (pcap_handler) callback_proto, (u_char *) &loc_idx);
+ 		if (ret == -2)
+ 		{
+ 			LDEBUG("loop stopped by breakloop");
+@@ -880,10 +880,10 @@ static int load_module(xml_node *config) {
+ 
+ 	for (i = 0; i < profile_size; i++) {
+ 
+-		int *arg = malloc(sizeof(*arg));
+-
+-		arg = i;
++		unsigned int *arg = malloc(sizeof(arg));		
+ 
++		*arg = i;
++		
+ 		/* DEV || FILE */
+ 		if (!usefile) {
+ 			if (!profile_socket[i].device)
+diff --git a/src/modules/socket/pcap/tcpreasm.c b/src/modules/socket/pcap/tcpreasm.c
+index e468073..2fc681f 100644
+--- a/src/modules/socket/pcap/tcpreasm.c
++++ b/src/modules/socket/pcap/tcpreasm.c
+@@ -136,7 +136,9 @@ static bool add_fragment_tcp (struct tcpreasm_ip_entry *entry, struct tcpreasm_f
+ /*
+  * Is the entry complete, ready for reassembly?
+  */
++/*
+ static bool is_complete (struct tcpreasm_ip_entry *entry);
++*/
+ 
+ static unsigned char *assemble_tcp (struct tcpreasm_ip_entry *entry, unsigned *output_len);
+ 
+@@ -398,13 +400,13 @@ tcpreasm_ip_free (struct tcpreasm_ip *tcpreasm)
+ 	free (tcpreasm);
+ }
+ 
+-
++/*
+ static bool
+ is_complete (struct tcpreasm_ip_entry *entry)
+ {
+ 	return entry->holes == 0;
+ }
+-
++*/
+ 
+ static unsigned char *
+ assemble_tcp (struct tcpreasm_ip_entry *entry, unsigned *output_len)
+diff --git a/src/modules/socket/raw/socket_raw.c b/src/modules/socket/raw/socket_raw.c
+index 048f194..f375c65 100644
+--- a/src/modules/socket/raw/socket_raw.c
++++ b/src/modules/socket/raw/socket_raw.c
+@@ -33,6 +33,7 @@
+ #include <inttypes.h>
+ #include <ctype.h>
+ #include <sys/socket.h>
++#include <sys/ioctl.h> 
+ #include <arpa/inet.h>
+ #include <netdb.h>
+ #include <fcntl.h>
+@@ -73,6 +74,7 @@
+ #include <captagent/modules.h>
+ #include "socket_raw.h"
+ #include <captagent/log.h>
++#include <captagent/action.h>
+ #include "localapi.h"
+ 
+ 
+@@ -140,7 +142,7 @@ int apply_filter (filter_msg_t *filter) {
+ int reload_config (char *erbuf, int erlen) {
+ 
+ 	char module_config_name[500];
+-	xml_node *config;
++	xml_node *config = NULL;
+ 
+ 	LNOTICE("reloading config for [%s]", module_name);
+ 
+@@ -157,15 +159,12 @@ int reload_config (char *erbuf, int erlen) {
+ 
+ int init_socket(unsigned int loc_idx) {
+ 
+-	struct bpf_program filter;
+ 	char errbuf[PCAP_ERRBUF_SIZE];
+-	uint16_t snaplen = 65535, timeout = 100;
+ 	char short_ifname[sizeof(int)];
+ 	char filter_expr[FILTER_LEN];
+ 	int ifname_len;
+ 	char* ifname;
+ 	int err, len = 0;
+-	struct ifreq ifr;
+ 	int arptype = 0;
+ 	        
+ 	ifname_len = strlen(profile_socket[loc_idx].device);
+@@ -176,7 +175,7 @@ int init_socket(unsigned int loc_idx) {
+ 	//rtp_raw_sock = socket(PF_PACKET, SOCK_RAW, htons(0x0800));
+ 	socket_desc[loc_idx] = socket(PF_PACKET, SOCK_RAW, htons(0x0003));
+ 
+-	LDEBUG("ZZ: SCIO: [%d] [%d]\n", loc_idx, socket_desc[loc_idx]);
++	//LDEBUG("ZZ: SCIO: [%d] [%d]\n", loc_idx, socket_desc[loc_idx]);
+ 
+ 	if (socket_desc[loc_idx] == -1)
+ 		goto error;
+@@ -314,8 +313,8 @@ int convert_arp_to_dl(unsigned int loc_idx, int arptype) {
+ 
+ void* proto_collect(void *arg) {
+ 
+-	unsigned int loc_idx = (int *) arg;
+-
++	unsigned int loc_idx = *((int *)arg);  
++	        
+ 	raw_capture_rcv_loop(loc_idx);
+ 
+ 	if(socket_desc[loc_idx]) close(socket_desc[loc_idx]);
+@@ -329,9 +328,7 @@ void* proto_collect(void *arg) {
+ int set_raw_filter(unsigned int loc_idx, char *filter) {
+ 
+         struct bpf_program raw_filter;
+-        uint16_t snaplen = 65535;
+-        struct bpf_insn *insn;
+-        int i, n, linktype;
++        int linktype;
+ 
+         //return 1;
+         linktype  = profile_socket[loc_idx].link_type ? profile_socket[loc_idx].link_type : DEFAULT_DATALINK;
+@@ -374,13 +371,10 @@ int raw_capture_rcv_loop(unsigned int loc_idx) {
+ 	msg_t _msg;
+ 	uint32_t ip_ver;
+ 	uint8_t ip_proto = 0;
+-	uint32_t ip_hl = 0;
+-	uint32_t ip_off = 0;
+-	uint8_t fragmented = 0;
+-	uint16_t frag_offset = 0;
+ 	int action_idx = 0;
+ 	char mac_src[20], mac_dst[20];	        
+ 	struct ethhdr *eth = NULL;
++	struct run_act_ctx ctx;  
+ 	        
+ 
+ 	for (;;) {
+@@ -493,9 +487,10 @@ int raw_capture_rcv_loop(unsigned int loc_idx) {
+ 		_msg.parse_it = 1;
+ 
+ 		//LERR("PACKET LEN: [%d], D: [%.*s]", _msg.len, _msg.len, buf);
+-
++		memset(&ctx, 0, sizeof(struct run_act_ctx));
++		
+ 		action_idx = profile_socket[loc_idx].action;
+-		run_actions(action_idx, main_ct.clist[action_idx], &_msg);
++		run_actions(&ctx, main_ct.clist[action_idx], &_msg);
+ 
+ 		stats.send_packets++;
+ 
+@@ -622,11 +617,10 @@ static uint64_t serial_module(void)  {
+ static int load_module(xml_node *config) {
+ 
+ 	char errbuf[PCAP_ERRBUF_SIZE];
+-	xml_node *params, *profile=NULL, *settings, *condition, *action;
++	xml_node *params, *profile=NULL, *settings;
+ 	char *key, *value = NULL;
+ 	unsigned int i = 0;
+-	char module_api_name[256], loadplan[1024];
+-	int status;
++	char loadplan[1024];
+ 	FILE* cfg_stream;
+ 
+ 	LNOTICE("Loaded %s", module_name);
+@@ -746,9 +740,9 @@ static int load_module(xml_node *config) {
+ 
+ 	for (i = 0; i < profile_size; i++) {
+ 
+-		int *arg = malloc(sizeof(*arg));
++		unsigned int *arg = malloc(sizeof(*arg));
+ 
+-		arg = i;
++		*arg = i;
+ 
+ 		/* DEV || FILE */
+ 		if (!usefile) {
+diff --git a/src/modules/socket/rtcpxr/socket_rtcpxr.c b/src/modules/socket/rtcpxr/socket_rtcpxr.c
+index 60b6080..1589661 100644
+--- a/src/modules/socket/rtcpxr/socket_rtcpxr.c
++++ b/src/modules/socket/rtcpxr/socket_rtcpxr.c
+@@ -40,6 +40,7 @@
+ #include <signal.h>
+ #include <time.h>
+ #include <pthread.h>
++#include <sys/time.h>
+ 
+ #ifndef __FAVOR_BSD
+ #define __FAVOR_BSD
+@@ -209,7 +210,7 @@ void on_recv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* rcvbuf, const stru
+     int action_idx = 0;
+     struct run_act_ctx ctx;
+     struct sockaddr_in *cliaddr;
+-    uint8_t loc_idx = 0;
++    uint8_t loc_idx;
+ 
+     if (nread <= 0 || addr == NULL) 
+     {
+@@ -221,7 +222,7 @@ void on_recv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* rcvbuf, const stru
+     	return;
+     }
+ 
+-    loc_idx = (int) handle->data;
++    loc_idx = *((uint8_t *) handle->data);
+     
+     gettimeofday(&tv, NULL);
+ 
+@@ -338,7 +339,7 @@ int init_socket(unsigned int loc_idx) {
+ 	        return 2;
+ 	}
+ 
+-	udp_servers[loc_idx].data = (void *) loc_idx;
++	udp_servers[loc_idx].data = (void *) &loc_idx;
+ 
+ 	status = uv_udp_recv_start(&udp_servers[loc_idx], on_alloc, on_recv);
+ 
+diff --git a/src/modules/transport/hep/localapi.c b/src/modules/transport/hep/localapi.c
+index e3edb65..e6ac64f 100644
+--- a/src/modules/transport/hep/localapi.c
++++ b/src/modules/transport/hep/localapi.c
+@@ -36,7 +36,7 @@
+ /**
+  *
+  */
+-int hepapi_send_hep(rc_info_t *rcinfo, char *data, unsigned int len, char *profile)
++int hepapi_send_hep(rc_info_t *rcinfo, unsigned char *data, unsigned int len, char *profile)
+ {
+     //set_raw_filter(index, filter);
+     unsigned int idx = 0;
+diff --git a/src/modules/transport/hep/localapi.h b/src/modules/transport/hep/localapi.h
+index 1c54db6..24d4b07 100644
+--- a/src/modules/transport/hep/localapi.h
++++ b/src/modules/transport/hep/localapi.h
+@@ -30,8 +30,11 @@
+ #include <captagent/export_function.h>
+ 
+ 
+-typedef int (*hepapi_send_hep_f)(rc_info_t *rcinfo, char *data, unsigned int len, char *profile);
+-int hepapi_set_filter(rc_info_t *rcinfo, char *data, unsigned int len, char *profile);
++extern int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len, unsigned int sendzip, unsigned int idx);
++extern unsigned int get_profile_index_by_name(char *name);
++
++typedef int (*hepapi_send_hep_f)(rc_info_t *rcinfo, unsigned char *data, unsigned int len, char *profile);
++int hepapi_set_filter(rc_info_t *rcinfo, unsigned char *data, unsigned int len, char *profile);
+ 
+ typedef struct transport_hep_api {
+ 	hepapi_send_hep_f    sendhep;
+diff --git a/src/modules/transport/hep/transport_hep.c b/src/modules/transport/hep/transport_hep.c
+index a1e3a33..7ba8fdf 100644
+--- a/src/modules/transport/hep/transport_hep.c
++++ b/src/modules/transport/hep/transport_hep.c
+@@ -806,8 +806,6 @@ int homer_close(hep_connection_t *conn)
+ void homer_free(hep_connection_t *conn)
+ {
+ 
+-  int closed;
+-
+   LDEBUG("freeing connection\n");
+ 
+   if (conn == NULL) {
+@@ -826,7 +824,7 @@ void homer_free(hep_connection_t *conn)
+ 	}
+ 
+ 	uv_stop(conn->loop);
+-	closed = uv_loop_close(conn->loop);
++	int closed = uv_loop_close(conn->loop);
+ 
+ 	while(closed == UV_EBUSY) {
+ 		closed = uv_loop_close(conn->loop);
+diff --git a/src/modules/transport/json/transport_json.c b/src/modules/transport/json/transport_json.c
+index 6e7af45..aa08b4d 100644
+--- a/src/modules/transport/json/transport_json.c
++++ b/src/modules/transport/json/transport_json.c
+@@ -270,7 +270,7 @@ int send_json (msg_t *msg) {
+ 	if(errors > 30) { sleep (2); errors = 0; }
+ 
+ 	/* send this packet out of our socket */
+-	if(send_data(message, strlen(message), idx) < 0) {
++	if(send_data((void *)message, strlen(message), idx) < 0) {
+ 		     stats.errors_total++;
+ 		     LERR( "JSON server is down...");
+    		     if(!profile_transport[idx].usessl) {
+@@ -542,10 +542,11 @@ int initSSL(unsigned int idx) {
+ #endif /* use SSL */
+ 
+ 
+-int handlerPipe(void) {
++void handlerPipe(int signum)
++{
+ 
+-        LERR("SIGPIPE... trying to reconnect...");
+-        return 1;
++        LERR("SIGPIPE JSON... trying to reconnect...[%d]", signum);
++        return;
+ }
+ 
+ 

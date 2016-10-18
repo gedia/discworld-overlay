@@ -1,0 +1,40 @@
+From 412b412016509e7d59f31cdb530dae68a5e09940 Mon Sep 17 00:00:00 2001
+From: Alexandr Dubovikov <alexandr.dubovikov@gmail.com>
+Date: Fri, 16 Sep 2016 20:30:59 +0200
+Subject: [PATCH] fixed SSL compiling
+
+---
+ include/captagent/modules_api.h             | 6 ++++++
+ src/modules/transport/json/transport_json.c | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/include/captagent/modules_api.h b/include/captagent/modules_api.h
+index a8f13d3..c5467b5 100644
+--- a/include/captagent/modules_api.h
++++ b/include/captagent/modules_api.h
+@@ -27,6 +27,12 @@
+ #ifndef MODULES_API_H_
+ #define MODULES_API_H_
+ 
++#ifdef USE_SSL
++#include <openssl/ssl.h>
++#include <openssl/err.h>
++#endif /* USE_SSL */
++
++
+ typedef  struct module_exports* (*module_register)(void);
+ typedef  int (*cmd_function)(msg_t*, char* param1, char* param2);
+ typedef int (*fixup_function)(void** param, int param_no);
+diff --git a/src/modules/transport/json/transport_json.c b/src/modules/transport/json/transport_json.c
+index 3a346a6..6e7af45 100644
+--- a/src/modules/transport/json/transport_json.c
++++ b/src/modules/transport/json/transport_json.c
+@@ -526,7 +526,7 @@ int initSSL(unsigned int idx) {
+         SSL_set_connect_state(profile_transport[idx].ssl);
+ 
+         /* attach socket */
+-        SSL_set_fd(profile_transport[idx].ssl, profile_transport[index].socket);    /* attach the socket descriptor */
++        SSL_set_fd(profile_transport[idx].ssl, profile_transport[idx].socket);    /* attach the socket descriptor */
+ 
+         /* perform the connection */
+         if ( SSL_connect(profile_transport[idx].ssl) == -1 )  {
