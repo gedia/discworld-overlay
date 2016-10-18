@@ -110,6 +110,7 @@ src_prepare() {
 	default
 	AT_M4DIR="autoconf third-party third-party/pjproject" eautoreconf
 	cd ${S}/menuselect
+	AT_NOELIBTOOLIZE=yes
 	eautoreconf
 }
 
