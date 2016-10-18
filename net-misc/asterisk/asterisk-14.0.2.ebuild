@@ -106,8 +106,11 @@ pkg_setup() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}/fix-menuselect-split-tinfo.patch"
 	default
 	AT_M4DIR="autoconf third-party third-party/pjproject" eautoreconf
+	cd ${S}/menuselect
+	eautoreconf
 }
 
 src_configure() {

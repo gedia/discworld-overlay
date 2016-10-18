@@ -1,0 +1,47 @@
+diff -Naur asterisk-14.0.2/menuselect/configure.ac asterisk-14.0.2-aft/menuselect/configure.ac
+--- asterisk-14.0.2/menuselect/configure.ac	2016-09-30 23:36:17.000000000 +0300
++++ asterisk-14.0.2-aft/menuselect/configure.ac	2016-10-18 17:21:07.300664002 +0300
+@@ -120,11 +120,13 @@
+ AST_EXT_LIB_SETUP([NEWT], [newt], [newt])
+ AST_EXT_LIB_SETUP([CURSES], [curses], [curses])
+ AST_EXT_LIB_SETUP([NCURSES], [ncurses], [ncurses])
++AST_EXT_LIB_SETUP([TINFO], [Term Info], [tinfo])
+ AST_EXT_LIB_SETUP([LIBXML2], [LibXML2], [libxml2])
+ 
+ AST_EXT_LIB_CHECK([NEWT], [newt], [newtBell], [newt.h])
+ AST_EXT_LIB_CHECK([CURSES], [curses], [initscr], [curses.h])
+ AST_EXT_LIB_CHECK([NCURSES], [ncurses], [initscr], [curses.h])
++AST_EXT_LIB_CHECK([TINFO], [tinfo], [tgetent], [])
+ AST_EXT_TOOL_CHECK([LIBXML2], [xml2-config], , ,
+         [#include <libxml/tree.h>
+         #include <libxml/parser.h>],
+diff -Naur asterisk-14.0.2/menuselect/Makefile asterisk-14.0.2-aft/menuselect/Makefile
+--- asterisk-14.0.2/menuselect/Makefile	2016-09-30 23:36:17.000000000 +0300
++++ asterisk-14.0.2-aft/menuselect/Makefile	2016-10-18 17:21:02.812668070 +0300
+@@ -42,6 +42,13 @@
+   endif
+ endif
+ 
++ifdef TINFO_LIB
++  C_OBJS += menuselect_curses.o
++  C_LIBS +=$(TINFO_LIB)
++  C_INCLUDE += $(TINFO_INCLUDE)
++  ALL_TGTS += cmenuselect
++endif
++
+ ifdef GTK2_LIB
+   G_OBJS += menuselect_gtk.o
+   G_LIBS += $(GTK2_LIB)
+diff -Naur asterisk-14.0.2/menuselect/makeopts.in asterisk-14.0.2-aft/menuselect/makeopts.in
+--- asterisk-14.0.2/menuselect/makeopts.in	2016-09-30 23:36:17.000000000 +0300
++++ asterisk-14.0.2-aft/menuselect/makeopts.in	2016-10-18 17:21:13.324658548 +0300
+@@ -12,6 +12,9 @@
+ CURSES_INCLUDE=@CURSES_INCLUDE@
+ CURSES_LIB=@CURSES_LIB@
+ 
++TINFO_INCLUDE=@TINFO_INCLUDE@
++TINFO_LIB=@TINFO_LIB@
++
+ GTK2_INCLUDE=@GTK2_INCLUDE@
+ GTK2_LIB=@GTK2_LIB@
+ 
