@@ -24,7 +24,7 @@ RDEPEND="
     ssl? ( dev-libs/openssl )
     dev-libs/expat
     net-libs/libpcap
-    dev-libs/json"
+    dev-libs/json-c"
 
 DEPEND="${RDEPEND}"
 
