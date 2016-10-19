@@ -18,10 +18,10 @@ IUSE="compression extramodules ipv6 libuv mysql pcre redis ssl"
 RDEPEND="
     pcre? ( dev-libs/libpcre )
     compression? ( sys-libs/zlib )
-    libuv? ( dev-libs/libuv )
     mysql? ( virtual/libmysqlclient )
     redis? ( dev-libs/hiredis )
     ssl? ( dev-libs/openssl )
+    dev-libs/libuv
     dev-libs/expat
     net-libs/libpcap
     dev-libs/json-c"
