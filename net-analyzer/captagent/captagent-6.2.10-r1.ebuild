@@ -51,3 +51,12 @@ src_configure() {
      $(use_enable extramodules)
 }
 
+src_preinst() {
+        systemd_dounit "${FILESDIR}/${PN}.service"
+
+        insinto /etc/default
+        newins "${FILESDIR}/${PN}.default" ${PN}
+
+        dodir "/var/spool/${PN}"
+        dodir "/var/run/${PN}"
+}
