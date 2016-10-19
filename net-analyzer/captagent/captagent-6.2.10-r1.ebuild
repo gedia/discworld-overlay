@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=6
-inherit autotools eutils toolchain-funcs git-r3
+inherit autotools eutils toolchain-funcs git-r3 systemd
 
 DESCRIPTION="The Next-Generation capture agent for Sipcapture's Homer Project"
 HOMEPAGE="https://github.com/sipcapture/captagent"
