@@ -51,7 +51,7 @@ src_configure() {
      $(use_enable extramodules)
 }
 
-src_preinst() {
+pkg_preinst() {
         systemd_dounit "${FILESDIR}/${PN}.service"
 
         insinto /etc/default
