@@ -17,6 +17,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~ppc-
 IUSE="charts"
 
 RDEPEND="
+	virtual/cron
 	dev-php/pear
 	app-admin/pwgen
 	dev-perl/DBI
@@ -35,6 +36,13 @@ S="${WORKDIR}"/${PN}-ui-${PV}
 pkg_setup() {
 	webapp_pkg_setup
 }
+
+src_prepare() {
+	cd ${WORKDIR}
+	epatch ${FILESDIR}/fix-redundant-arg.patch
+	eapply_user
+}
+
 src_install() {
 	webapp_src_preinst
 

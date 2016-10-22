@@ -123,15 +123,14 @@ if [ $1 = "install" ]; then
     sed -i s/\{\{\ DB_USER\ \}\}/"${DB_USER}"/g "${MY_INSTALLDIR}/api/configuration.php"
     sed -i s/\{\{\ DB_PASS\ \}\}/"${DB_PASS}"/g "${MY_INSTALLDIR}/api/configuration.php"
 
-    # Missing: Deal with crons
-    # perl -p -i -e "s/homer_user/$DB_USER/" /opt/homer_rotate
-    # perl -p -i -e "s/homer_password/$DB_PASS/" /opt/homer_rotate
-    # perl -p -i -e "s/homer_user/$DB_USER/" /opt/rotation.ini
-    # perl -p -i -e "s/homer_password/$DB_PASS/" /opt/rotation.ini
-    # chmod 775 /opt/homer_rotate
-    # (crontab -l ; echo "30 3 * * * /opt/homer_rotate >> /var/log/cron.log 2>&1") | sort - | uniq - | crontab -
-    # echo "30 3 * * * /opt/homer_rotate >> /var/log/cron.log 2>&1" > /crons.conf
-    # crontab /crons.conf
+    # Setup cron jobs
+    sed -i s/host=localhost/host="${DB_HOST}"/g "${VHOST_ROOT}/scripts/rotation.ini"
+    sed -i s/homer_user/"${DB_USER}"/g "${VHOST_ROOT}/scripts/rotation.ini"
+    sed -i s/homer_password/"${DB_PASS}"/g "${VHOST_ROOT}/scripts/rotation.ini"
+    (crontab -l ; echo "30 3 * * * ${VHOST_ROOT}/scripts/homer_rotate >> /var/log/cron.log 2>&1") | sort - | uniq - | crontab -
+    echo "30 3 * * * "${VHOST_ROOT}/scripts/homer_rotate" >> /var/log/cron.log 2>&1" > "${VHOST_ROOT}/scripts/crons.conf"
+    crontab "${VHOST_ROOT}/scripts/crons.conf"
+    ${VHOST_ROOT}/scripts/homer_rotate
 
 elif [ $1 = "clean" ]; then
         echo $1
