@@ -123,6 +123,9 @@ if [ $1 = "install" ]; then
     sed -i s/\{\{\ DB_USER\ \}\}/"${DB_USER}"/g "${MY_INSTALLDIR}/api/configuration.php"
     sed -i s/\{\{\ DB_PASS\ \}\}/"${DB_PASS}"/g "${MY_INSTALLDIR}/api/configuration.php"
 
+    # Set timezone
+    sed -ie "s/Europe\/Amsterdam/$(sed 's:/:\\/:g' /etc/timezone)/g" /var/www/homer.discworld.awmn/htdocs/homer/api/preferences.php
+
     # Setup cron jobs
     sed -i s/host=localhost/host="${DB_HOST}"/g "${VHOST_ROOT}/scripts/rotation.ini"
     sed -i s/homer_user/"${DB_USER}"/g "${VHOST_ROOT}/scripts/rotation.ini"
