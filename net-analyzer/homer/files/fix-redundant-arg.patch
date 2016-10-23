@@ -1,6 +1,6 @@
-diff -Naur homer-api-5.0.6/scripts/homer_mysql_rotate.pl homer-api-5.0.6-aft/scripts/homer_mysql_rotate.pl
---- homer-api-5.0.6/scripts/homer_mysql_rotate.pl	2016-09-14 14:20:10.000000000 +0300
-+++ homer-api-5.0.6-aft/scripts/homer_mysql_rotate.pl	2016-10-22 17:52:51.345174753 +0300
+diff -Naur homer-api/scripts/homer_mysql_rotate.pl homer-api-aft/scripts/homer_mysql_rotate.pl
+--- homer-api/scripts/homer_mysql_rotate.pl	2016-09-14 14:20:10.000000000 +0300
++++ homer-api-aft/scripts/homer_mysql_rotate.pl	2016-10-22 17:52:51.345174753 +0300
 @@ -150,7 +150,7 @@
          my $sth = $db->prepare($query);
          $sth->execute();
