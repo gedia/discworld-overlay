@@ -43,12 +43,6 @@ src_unpack() {
 	git-r3_checkout
 }
 
-src_prepare() {
-	cd ${WORKDIR}
-	epatch ${FILESDIR}/fix-redundant-arg.patch
-	eapply_user
-}
-
 src_install() {
 	webapp_src_preinst
 
