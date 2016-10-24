@@ -14,7 +14,7 @@ EGIT_REPO_URI="https://github.com/sipcapture/${PN}-api.git"
 EGIT_CHECKOUT_DIR="${WORKDIR}/${PN}-api"
 LICENSE="AGPL-3"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~ppc-macos ~x64-macos ~x86-macos"
-IUSE="charts"
+IUSE="charts local-capturenode"
 
 RDEPEND="
 	virtual/cron
@@ -26,7 +26,7 @@ RDEPEND="
 	virtual/libmysqlclient
 	dev-lang/php[json,pdo,mysql]
 	virtual/httpd-php:*
-	net-misc/kamailio[kamailio_modules_db_mysql,kamailio_modules_sipcapture,kamailio_modules_textops,kamailio_modules_rtimer,kamailio_modules_xlog,kamailio_modules_sqlops,kamailio_modules_htable,kamailio_modules_tm,kamailio_modules_siputils,kamailio_modules_exec]
+	local-capturenode? ( net-misc/kamailio[kamailio_modules_db_mysql,kamailio_modules_sipcapture,kamailio_modules_textops,kamailio_modules_rtimer,kamailio_modules_xlog,kamailio_modules_sqlops,kamailio_modules_htable,kamailio_modules_tm,kamailio_modules_siputils,kamailio_modules_exec] )
 	charts? ( dev-db/influxdb app-misc/elasticsearch )
 "
 
