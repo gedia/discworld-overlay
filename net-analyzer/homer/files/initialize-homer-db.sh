@@ -135,6 +135,11 @@ if [ $1 = "install" ]; then
     crontab "${VHOST_ROOT}/scripts/crons.conf"
     ${VHOST_ROOT}/scripts/homer_rotate
 
+    # Edit kamailio example configuration with values gathered from script
+    sed -i s/\{\{\ DB_HOST\ \}\}/"${DB_HOST}"/g "${VHOST_ROOT}/configuration-examples/kamailio.cfg.example"
+    sed -i s/\{\{\ DB_USER\ \}\}/"${DB_USER}"/g "${VHOST_ROOT}/configuration-examples/kamailio.cfg.example"
+    sed -i s/\{\{\ DB_PASS\ \}\}/"${DB_PASS}"/g "${VHOST_ROOT}/configuration-examples/kamailio.cfg.example"
+
 elif [ $1 = "clean" ]; then
         echo $1
 fi
