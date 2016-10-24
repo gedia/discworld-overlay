@@ -26,6 +26,7 @@ RDEPEND="
 	virtual/libmysqlclient
 	dev-lang/php[json,pdo,mysql]
 	virtual/httpd-php:*
+	net-misc/kamailio[kamailio_modules_db_mysql,kamailio_modules_sipcapture,kamailio_modules_textops,kamailio_modules_rtimer,kamailio_modules_xlog,kamailio_modules_sqlops,kamailio_modules_htable,kamailio_modules_tm,kamailio_modules_siputils,kamailio_modules_exec]
 	charts? ( dev-db/influxdb app-misc/elasticsearch )
 "
 
