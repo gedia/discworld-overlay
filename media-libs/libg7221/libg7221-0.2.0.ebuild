@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit eutils autotools
+inherit autotools
 
 DESCRIPTION="Packaged version of G.722.1 codec adapted from Polycom reference sources"
 HOMEPAGE=""
@@ -21,3 +21,8 @@ SLOT="0"
 IUSE=""
 
 S="${WORKDIR}/${MY_P}"
+
+src_prepare() {
+	eautoreconf
+	default_src_prepare
+}
