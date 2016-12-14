@@ -45,8 +45,3 @@ This is a possibly incomplete list of ebuilds included in this Gentoo repository
    or Belledonne Communications' bcg729 code. The ebuild applies a patch to build against Intel IPP libraries dynamically.
    This means that Intel IPP libraries must be in the LDPATH of the machine where the code will be executed.
    This repository provides ebuilds for these libraries as well, and manages the dependency.
-
-### Known Issues
- - Currently the binary opus codec for Asterisk 14 is broken. If you use the ebuild of this repository to emerge
-   Asterisk and have enabled the "opus" USE flag, you might have to add "noload => codec_opus.so" to modules.conf
-   for Asterisk to start.
