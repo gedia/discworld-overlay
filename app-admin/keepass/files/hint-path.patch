@@ -1,0 +1,11 @@
+--- Ext/Plugins/KPScript.csproj	2017-01-04 22:37:56.819117572 +0200
++++ Ext/Plugins/KPScript.csproj.b	2017-01-04 22:40:16.207992627 +0200
+@@ -37,7 +37,7 @@
+   <ItemGroup>
+     <Reference Include="KeePass, Version=2.0.0.28168, Culture=neutral, PublicKeyToken=7952fc8ece49a093, processorArchitecture=MSIL">
+       <SpecificVersion>False</SpecificVersion>
+-      <HintPath>..\..\Build\KeePass_Distrib\KeePass.exe</HintPath>
++      <HintPath>..\..\Build\KeePass\Release\KeePass.exe</HintPath>
+     </Reference>
+     <Reference Include="System" />
+     <Reference Include="System.Windows.Forms" />

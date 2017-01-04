@@ -1,0 +1,18 @@
+--- Ext/Plugins/KPScript.csproj	2014-09-15 11:07:40.000000000 +0300
++++ Ext/Plugins/KPScript.csproj.b	2017-01-04 22:20:57.081976737 +0200
+@@ -9,7 +9,7 @@
+     <AppDesignerFolder>Properties</AppDesignerFolder>
+     <RootNamespace>KPScript</RootNamespace>
+     <AssemblyName>KPScript</AssemblyName>
+-    <SignAssembly>true</SignAssembly>
++    <SignAssembly>false</SignAssembly>
+     <AssemblyOriginatorKeyFile>KPScript.pfx</AssemblyOriginatorKeyFile>
+     <FileUpgradeFlags>
+     </FileUpgradeFlags>
+@@ -78,4 +78,4 @@
+   <Target Name="AfterBuild">
+   </Target>
+   -->
+-</Project>
+\ No newline at end of file
++</Project>
