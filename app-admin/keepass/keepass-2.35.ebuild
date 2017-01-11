@@ -10,7 +10,7 @@ MY_PN="KeePass"
 DESCRIPTION="A free, open source, light-weight and easy-to-use password manager"
 HOMEPAGE="http://keepass.info/"
 SRC_URI="mirror://sourceforge/${PN}/${MY_PN}-${PV}-Source.zip
-	kpscript? ( http://keepass.info/extensions/v2/kpscript/KPScript-2.34-Source.zip )"
+	kpscript? ( http://keepass.info/extensions/v2/kpscript/KPScript-${PV}-Source.zip )"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -30,7 +30,7 @@ src_unpack() {
 
 	if use kpscript; then
 		cd "${S}/Ext/Plugins" || die
-		unpack KPScript-2.34-Source.zip
+		unpack KPScript-${PV}-Source.zip
 	fi
 }
 
