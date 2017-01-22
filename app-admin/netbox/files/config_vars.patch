@@ -1,0 +1,33 @@
+diff -Naur netbox-1.8.2/netbox/netbox/configuration.example.py netbox-1.8.2-aft/netbox/netbox/configuration.example.py
+--- netbox-1.8.2/netbox/netbox/configuration.example.py	2017-01-18 23:23:28.000000000 +0200
++++ netbox-1.8.2-aft/netbox/netbox/configuration.example.py	2017-01-22 22:34:04.795864129 +0200
+@@ -8,22 +8,22 @@
+ # access to the server via any other hostnames. The first FQDN in the list will be treated as the preferred name.
+ #
+ # Example: ALLOWED_HOSTS = ['netbox.example.com', 'netbox.internal.local']
+-ALLOWED_HOSTS = []
++ALLOWED_HOSTS = ['{{ ALLOWED_HOSTS }}']
+ 
+ # PostgreSQL database configuration.
+ DATABASE = {
+-    'NAME': 'netbox',         # Database name
+-    'USER': '',               # PostgreSQL username
+-    'PASSWORD': '',           # PostgreSQL password
+-    'HOST': 'localhost',      # Database server
+-    'PORT': '',               # Database port (leave blank for default)
++    'NAME': '{{ DB_NAME }}',         # Database name
++    'USER': '{{ DB_USER }}',               # PostgreSQL username
++    'PASSWORD': '{{ DB_PASS }}',           # PostgreSQL password
++    'HOST': '{{ DB_HOST }}',      # Database server
++    'PORT': '{{ DB_PORT }}',               # Database port (leave blank for default)
+ }
+ 
+ # This key is used for secure generation of random numbers and strings. It must never be exposed outside of this file.
+ # For optimal security, SECRET_KEY should be at least 50 characters in length and contain a mix of letters, numbers, and
+ # symbols. NetBox will not run without this defined. For more information, see
+ # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SECRET_KEY
+-SECRET_KEY = ''
++SECRET_KEY = '{{ APP_KEY }}'
+ 
+ 
+ #########################
