@@ -17,7 +17,6 @@ IUSE=""
 
 RDEPEND="
 	dev-db/postgresql
-	dev-python/psycopg:2
 	dev-lang/python
 	dev-libs/libxml2
 	dev-libs/libxslt
@@ -26,23 +25,23 @@ RDEPEND="
 	dev-libs/openssl
 	>=dev-python/cffi-1.8.3
 	>=dev-python/cryptography-1.5.2
-	=dev-python/django-1.10
-	=dev-python/django-debug-toolbar-1.4
-	>=dev-python/django-filter-0.13.0
+	>=dev-python/django-1.10
+	>=dev-python/django-debug-toolbar-1.6
+	=dev-python/django-filter-0.15.3
 	=dev-python/django-rest-swagger-0.3.10
-	>=dev-python/django-tables2-1.2.0
-	>=dev-python/django-filter-0.15.3
-	>=dev-python/django-rest-framework-3.4.0
-	dev-python/graphviz
-	dev-python/markdown
-	dev-python/natsort
-	dev-python/ncclient
-	dev-python/netaddr
-	dev-python/paramiko
-	dev-python/py-gfm
-	dev-python/pycrypto
-	dev-python/python-sqlparse
-	dev-python/xmltodict
+	>=dev-python/django-tables2-1.2.5
+	>=dev-python/django-rest-framework-3.5.0
+	>=dev-python/graphviz-0.4.10
+	>=dev-python/markdown-2.6.7
+	>=dev-python/natsort-5.0.0
+	=dev-python/ncclient-0.5.2
+	=dev-python/netaddr-0.7.18
+	>=dev-python/paramiko-2.0.0
+	>=dev-python/psycopg-2.6.1
+	>=dev-python/py-gfm-0.1.3
+	>=dev-python/pycrypto-2.6.1
+	>=dev-python/python-sqlparse-0.2
+	>=dev-python/xmltodict-0.10.2
 	www-servers/gunicorn
 "
 
