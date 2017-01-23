@@ -46,6 +46,6 @@ This is a possibly incomplete list of ebuilds included in this Gentoo repository
    This means that Intel IPP libraries must be in the LDPATH of the machine where the code will be executed.
    This repository provides ebuilds for these libraries as well, and manages the dependency.
  - app-admin/netbox: NetBox is an open source web application designed to help manage and document computer networks.
-   Depends on several ebuilds available via the last-hope overlay. You might also need to bump versions of some dev-python
-   ebuilds in your local overlay (only filename renaming is necessary and running "ebuild /path/to/bumped/verion.ebuild digest".
-   I am not aware of any other ebuilds for this package.
+   Depends on several ebuilds available via the last-hope overlay (https://github.com/ercpe/lh-overlay). You might also need
+   to bump versions of some dev-python ebuilds in your local overlay (only filename renaming is necessary and running
+   "ebuild /path/to/bumped/verion.ebuild digest". I am not aware of any other ebuilds for this software.
