@@ -3,14 +3,12 @@ however under UNIX system this not a good idea, so we look into the
 CommonApplicationData SpecialFolder, which usually maps to "/usr/share/".
 So the final search path should be "/usr/share/KeePass/XSL/".
 
-diff --git a/KeePass/Forms/AboutForm.cs b/KeePass/Forms/AboutForm.cs
-index 8a04c87..6083c00 100644
---- a/KeePass/Forms/AboutForm.cs
+--- a/KeePass/forms/AboutForm.cs
 +++ b/KeePass/Forms/AboutForm.cs
-@@ -31,9 +31,11 @@ using KeePass.UI;
+@@ -31,9 +31,11 @@
  using KeePass.Resources;
+ using KeePass.UI;
  using KeePass.Util;
- using KeePass.DataExchange;
 +using KeePass.Native;
  
  using KeePassLib;
@@ -19,7 +17,7 @@ index 8a04c87..6083c00 100644
  
  namespace KeePass.Forms
  {
-@@ -92,8 +94,21 @@ namespace KeePass.Forms
+@@ -98,8 +100,21 @@
  			m_lvComponents.Items.Add(lvi);
  
  			lvi = new ListViewItem(KPRes.XslStylesheetsKdbx);
@@ -42,4 +40,4 @@ index 8a04c87..6083c00 100644
 +
  			strPath += AppDefs.XslFilesDir;
  			strPath = UrlUtil.EnsureTerminatingSeparator(strPath, false);
- 			bool bInstalled = File.Exists(strPath + AppDefs.XslFileHtmlLite);
+ 			bool bInstalled = File.Exists(strPath + AppDefs.XslFileHtmlFull);
